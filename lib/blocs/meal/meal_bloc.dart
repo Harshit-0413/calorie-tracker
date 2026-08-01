@@ -38,7 +38,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
     LogMealFromText event,
     Emitter<MealState> emit,
   ) async {
-    emit(const MealLogging());
+    emit(const MealParsing());
 
     try {
       final entries = await _repository.parseFoodInput(event.originalPrompt);

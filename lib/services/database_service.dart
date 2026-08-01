@@ -144,15 +144,48 @@ CREATE TABLE weight_entries (
 
   Future<List<FoodItem>> searchFoods(String query) async {
     final db = await database;
+    final search = query.trim().toLowerCase();
+
+    if (search.isEmpty) return [];
+
+    final likePattern = '%$search%';
 
     final results = await db.query(
       'food_items',
-      where: 'name LIKE ? OR name_hindi LIKE ?',
-      whereArgs: ['%$query%', '%$query%'],
-      limit: 20,
+      where: '''
+      LOWER(name) LIKE ? OR
+      LOWER(name_hindi) LIKE ? OR
+      LOWER(category) LIKE ? OR
+      LOWER(brand) LIKE ? OR
+      LOWER(aliases) LIKE ?
+    ''',
+      whereArgs: [
+        likePattern,
+        likePattern,
+        likePattern,
+        likePattern,
+        likePattern,
+      ],
+      limit: 200, // cap what SQLite returns before Dart-side ranking
     );
 
-    return results.map((map) => FoodItem.fromMap(map)).toList();
+    final foods = results.map((map) => FoodItem.fromMap(map)).toList();
+
+    foods.sort((a, b) {
+      final aExact = a.name.toLowerCase() == search;
+      final bExact = b.name.toLowerCase() == search;
+      if (aExact && !bExact) return -1;
+      if (!aExact && bExact) return 1;
+
+      final aStarts = a.name.toLowerCase().startsWith(search);
+      final bStarts = b.name.toLowerCase().startsWith(search);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+
+      return a.name.compareTo(b.name);
+    });
+
+    return foods.take(50).toList();
   }
 
   Future<FoodItem?> getFoodByName(String name) async {

@@ -18,8 +18,8 @@ class MealLoading extends MealState {
 }
 
 /// AI is analyzing the meal text
-class MealLogging extends MealState {
-  const MealLogging();
+class MealParsing extends MealState {
+  const MealParsing();
 }
 
 /// Meal is being saved to SQLite

@@ -1,3 +1,5 @@
+import 'package:calorie_tracker/screens/food/food_search_screen.dart';
+import 'package:calorie_tracker/screens/food/meal_builder_screen.dart';
 import 'package:calorie_tracker/services/insights_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/meal/meal_bloc.dart';
 import '../../blocs/user/user_bloc.dart';
 
-import '../../screens/food/food_search.dart';
 import '../../theme/app_theme.dart';
 
 import '../../widgets/home/daily_insight_card.dart';
@@ -105,7 +106,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     const SizedBox(height: AppTheme.xl),
 
-                    JourneySection(mealCount: mealCount),
+                    JourneySection(
+                      mealCount: mealCount,
+                      onMealTap: (mealType) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                MealBuilderScreen(mealType: mealType),
+                          ),
+                        );
+                      },
+                    ),
 
                     const SizedBox(height: AppTheme.xl),
 

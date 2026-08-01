@@ -1,11 +1,17 @@
+import 'package:calorie_tracker/core/enums/meal_type.dart';
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import 'meal_card.dart';
 
 class JourneySection extends StatelessWidget {
   final int mealCount;
+  final ValueChanged<MealType> onMealTap;
 
-  const JourneySection({super.key, required this.mealCount});
+  const JourneySection({
+    super.key,
+    required this.mealCount,
+    required this.onMealTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,40 +44,44 @@ class JourneySection extends StatelessWidget {
 
         const SizedBox(height: AppTheme.md),
 
-        const MealCard(
+        MealCard(
           emoji: "☀️",
           title: "Breakfast",
           time: "--",
           calories: 0,
-          items: [],
+          items: const [],
           logged: false,
+          onTap: () => onMealTap(MealType.breakfast),
         ),
 
-        const MealCard(
+        MealCard(
           emoji: "🌤",
           title: "Lunch",
           time: "--",
           calories: 0,
-          items: [],
+          items: const [],
           logged: false,
+          onTap: () => onMealTap(MealType.lunch),
         ),
 
-        const MealCard(
+        MealCard(
           emoji: "🌇",
           title: "Snack",
           time: "--",
           calories: 0,
-          items: [],
+          items: const [],
           logged: false,
+          onTap: () => onMealTap(MealType.snack),
         ),
 
-        const MealCard(
+        MealCard(
           emoji: "🌙",
           title: "Dinner",
           time: "--",
           calories: 0,
-          items: [],
+          items: const [],
           logged: false,
+          onTap: () => onMealTap(MealType.dinner),
         ),
       ],
     );
