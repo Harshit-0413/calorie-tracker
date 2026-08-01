@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "56869221874",
+    "project_id": "calorie-tracker-6e32c",
+    "storage_bucket": "calorie-tracker-6e32c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:56869221874:android:fd8892240c8e9c3121a76b",
+        "android_client_info": {
+          "package_name": "com.example.calorie_tracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "56869221874-1hkfnm8km2djibr5ktr608nij41kqucu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.calorie_tracker",
+            "certificate_hash": "a8c555c3e6fab5309f029556ba452ec8111973e1"
+          }
+        },
+        {
+          "client_id": "56869221874-uvlqe1kb1t71gti1ui11uagkq6idqfum.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDo0JRz1HKlQRcHVUiRSQhSZb0UYr_zxOs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "56869221874-uvlqe1kb1t71gti1ui11uagkq6idqfum.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "56869221874-1hqnpmap3loho40bef83mg8jk63oquo8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.calorieTracker"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
