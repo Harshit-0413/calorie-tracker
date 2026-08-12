@@ -1,3 +1,4 @@
+import 'package:calorie_tracker/core/enums/meal_type.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -218,14 +219,87 @@ CREATE TABLE weight_entries (
   // ─────────────────────────────────────────────
   // Meal Logs
   // ─────────────────────────────────────────────
+  Future<MealLog?> getMealForType({
+    required String userId,
+    required MealType mealType,
+    required DateTime date,
+  }) async {
+    final db = await database;
+
+    final startOfDay = DateTime(
+      date.year,
+      date.month,
+      date.day,
+    ).toIso8601String();
+
+    final endOfDay = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      23,
+      59,
+      59,
+    ).toIso8601String();
+
+    final result = await db.query(
+      'meal_logs',
+      where: '''
+      user_id = ?
+      AND meal_type = ?
+      AND logged_at BETWEEN ? AND ?
+    ''',
+      whereArgs: [userId, mealType.name, startOfDay, endOfDay],
+      limit: 1,
+    );
+
+    if (result.isEmpty) return null;
+
+    return MealLog.fromMap(result.first);
+  }
 
   Future<void> saveMeal(MealLog log) async {
     final db = await database;
 
-    await db.insert(
+    final existing = await getMealForType(
+      userId: log.userId,
+      mealType: log.mealType,
+      date: log.loggedAt,
+    );
+
+    if (existing == null) {
+      await db.insert(
+        'meal_logs',
+        log.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      return;
+    }
+
+    final updatedMeal = existing.copyWith(
+      foodEntries: [...existing.foodEntries, ...log.foodEntries],
+      originalPrompt: existing.originalPrompt.isEmpty
+          ? log.originalPrompt
+          : existing.originalPrompt,
+      aiInsight: log.aiInsight.isNotEmpty ? log.aiInsight : existing.aiInsight,
+      updatedAt: DateTime.now(),
+    );
+
+    await db.update(
       'meal_logs',
-      log.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      updatedMeal.toMap(),
+      where: 'id = ?',
+      whereArgs: [existing.id],
+    );
+  }
+
+  Future<void> updateMeal(MealLog meal) async {
+    final db = await database;
+
+    await db.update(
+      'meal_logs',
+      meal.toMap(),
+      where: 'id = ?',
+      whereArgs: [meal.id],
     );
   }
 

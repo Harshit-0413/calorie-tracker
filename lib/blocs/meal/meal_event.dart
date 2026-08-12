@@ -60,3 +60,12 @@ class GetHealthAnalysis extends MealEvent {
   @override
   List<Object?> get props => [userId, date];
 }
+
+class UpdateMeal extends MealEvent {
+  final MealLog meal;
+
+  const UpdateMeal(this.meal);
+
+  @override
+  List<Object?> get props => [meal];
+}

@@ -1,3 +1,4 @@
+import 'package:calorie_tracker/repositories/meal_repository.dart';
 import 'package:calorie_tracker/screens/food/food_search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,11 +21,18 @@ class MealBuilderScreen extends StatefulWidget {
 }
 
 class _MealBuilderScreenState extends State<MealBuilderScreen> {
+  MealLog? _existingMeal;
   final List<MealFoodEntry> _currentMeal = [];
 
   final TextEditingController _promptController = TextEditingController();
 
   static const _uuid = Uuid();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExistingMeal();
+  }
 
   @override
   void dispose() {
@@ -56,6 +64,32 @@ class _MealBuilderScreenState extends State<MealBuilderScreen> {
 
     setState(() {
       _currentMeal.add(entry);
+    });
+  }
+
+  Future<void> _loadExistingMeal() async {
+    final userId = AuthService.instance.currentUserId;
+
+    if (userId == null) return;
+
+    final repository = context.read<MealRepository>();
+
+    final meal = await repository.getMealForType(
+      userId: userId,
+      mealType: widget.mealType,
+      date: DateTime.now(),
+    );
+
+    if (!mounted || meal == null) return;
+
+    setState(() {
+      _existingMeal = meal;
+
+      _currentMeal
+        ..clear()
+        ..addAll(meal.foodEntries);
+
+      _promptController.text = meal.originalPrompt;
     });
   }
 
@@ -105,19 +139,23 @@ class _MealBuilderScreenState extends State<MealBuilderScreen> {
     final now = DateTime.now();
 
     final meal = MealLog(
-      id: _uuid.v4(),
+      id: _existingMeal?.id ?? _uuid.v4(),
       userId: uid,
       mealType: widget.mealType,
       source: MealSource.manual,
       foodEntries: List.of(_currentMeal),
       originalPrompt: _promptController.text.trim(),
-      aiInsight: '',
-      loggedAt: now,
-      createdAt: now,
+      aiInsight: _existingMeal?.aiInsight ?? '',
+      loggedAt: _existingMeal?.loggedAt ?? now,
+      createdAt: _existingMeal?.createdAt ?? now,
       updatedAt: now,
     );
 
-    context.read<MealBloc>().add(SaveMeal(meal));
+    if (_existingMeal != null) {
+      context.read<MealBloc>().add(UpdateMeal(meal));
+    } else {
+      context.read<MealBloc>().add(SaveMeal(meal));
+    }
   }
 
   @override
@@ -132,7 +170,8 @@ class _MealBuilderScreenState extends State<MealBuilderScreen> {
         }
 
         if (state is MealsLoaded) {
-          Navigator.pop(context);
+          if (!mounted) return;
+          Navigator.pop(context, true);
         }
 
         if (state is MealError) {

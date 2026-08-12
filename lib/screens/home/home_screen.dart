@@ -1,4 +1,4 @@
-import 'package:calorie_tracker/screens/food/food_search_screen.dart';
+import 'package:calorie_tracker/core/enums/meal_type.dart';
 import 'package:calorie_tracker/screens/food/meal_builder_screen.dart';
 import 'package:calorie_tracker/services/insights_service.dart';
 import 'package:flutter/material.dart';
@@ -53,12 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
           return BlocBuilder<MealBloc, MealState>(
             builder: (context, mealState) {
-              int mealCount = 0;
-
-              if (mealState is MealsLoaded) {
-                mealCount = mealState.meals.length;
-              }
-
               final insights = mealState is MealsLoaded
                   ? InsightsService.generateInsights(
                       meals: mealState.meals,
@@ -83,7 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const FoodSearchScreen(),
+                            builder: (_) => const MealBuilderScreen(
+                              mealType: MealType.breakfast,
+                            ),
                           ),
                         );
                       },
@@ -107,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: AppTheme.xl),
 
                     JourneySection(
-                      mealCount: mealCount,
+                      meals: mealState is MealsLoaded ? mealState.meals : [],
                       onMealTap: (mealType) {
                         Navigator.push(
                           context,

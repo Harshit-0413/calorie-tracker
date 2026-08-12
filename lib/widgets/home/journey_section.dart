@@ -1,17 +1,34 @@
-import 'package:calorie_tracker/core/enums/meal_type.dart';
 import 'package:flutter/material.dart';
+
+import '../../core/enums/meal_type.dart';
+import '../../models/meal_log.dart';
 import '../../theme/app_theme.dart';
 import 'meal_card.dart';
 
 class JourneySection extends StatelessWidget {
-  final int mealCount;
+  final List<MealLog> meals;
   final ValueChanged<MealType> onMealTap;
 
   const JourneySection({
     super.key,
-    required this.mealCount,
+    required this.meals,
     required this.onMealTap,
   });
+
+  static const _mealMeta = [
+    (MealType.breakfast, "☀️", "Breakfast"),
+    (MealType.lunch, "🌤", "Lunch"),
+    (MealType.snack, "🌇", "Snack"),
+    (MealType.dinner, "🌙", "Dinner"),
+  ];
+
+  MealLog? _mealForType(MealType type) {
+    try {
+      return meals.firstWhere((meal) => meal.mealType == type);
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +52,7 @@ class JourneySection extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppTheme.radiusFull),
               ),
               child: Text(
-                "$mealCount meal${mealCount == 1 ? '' : 's'}",
+                "${meals.length} meal${meals.length == 1 ? '' : 's'}",
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
@@ -44,45 +61,20 @@ class JourneySection extends StatelessWidget {
 
         const SizedBox(height: AppTheme.md),
 
-        MealCard(
-          emoji: "☀️",
-          title: "Breakfast",
-          time: "--",
-          calories: 0,
-          items: const [],
-          logged: false,
-          onTap: () => onMealTap(MealType.breakfast),
-        ),
+        ..._mealMeta.map((meta) {
+          final type = meta.$1;
+          final emoji = meta.$2;
+          final title = meta.$3;
 
-        MealCard(
-          emoji: "🌤",
-          title: "Lunch",
-          time: "--",
-          calories: 0,
-          items: const [],
-          logged: false,
-          onTap: () => onMealTap(MealType.lunch),
-        ),
+          final meal = _mealForType(type);
 
-        MealCard(
-          emoji: "🌇",
-          title: "Snack",
-          time: "--",
-          calories: 0,
-          items: const [],
-          logged: false,
-          onTap: () => onMealTap(MealType.snack),
-        ),
-
-        MealCard(
-          emoji: "🌙",
-          title: "Dinner",
-          time: "--",
-          calories: 0,
-          items: const [],
-          logged: false,
-          onTap: () => onMealTap(MealType.dinner),
-        ),
+          return MealCard(
+            emoji: emoji,
+            title: title,
+            meal: meal,
+            onTap: () => onMealTap(type),
+          );
+        }),
       ],
     );
   }

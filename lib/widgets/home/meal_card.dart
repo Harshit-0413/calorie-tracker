@@ -1,28 +1,30 @@
 import 'package:flutter/material.dart';
-import '../../../theme/app_theme.dart';
+import 'package:intl/intl.dart';
+
+import '../../models/meal_log.dart';
+import '../../theme/app_theme.dart';
 
 class MealCard extends StatelessWidget {
   const MealCard({
     super.key,
     required this.emoji,
     required this.title,
-    required this.time,
-    required this.items,
-    required this.calories,
-    this.logged = true,
+    required this.meal,
     this.onTap,
   });
 
   final String emoji;
   final String title;
-  final String time;
-  final List<String> items;
-  final int calories;
-  final bool logged;
+  final MealLog? meal;
   final VoidCallback? onTap;
+
+  bool get _logged => meal != null;
 
   @override
   Widget build(BuildContext context) {
+    final foodNames =
+        meal?.foodEntries.map((e) => e.scaledFood.name).toList() ?? [];
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -57,7 +59,9 @@ class MealCard extends StatelessWidget {
                         const Spacer(),
 
                         Text(
-                          time,
+                          _logged
+                              ? DateFormat.jm().format(meal!.loggedAt)
+                              : "--",
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
@@ -65,12 +69,12 @@ class MealCard extends StatelessWidget {
 
                     const SizedBox(height: AppTheme.sm),
 
-                    if (logged)
-                      ...items.map(
-                        (e) => Padding(
+                    if (_logged)
+                      ...foodNames.map(
+                        (food) => Padding(
                           padding: const EdgeInsets.only(bottom: 2),
                           child: Text(
-                            e,
+                            food,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ),
@@ -88,7 +92,9 @@ class MealCard extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          logged ? "$calories kcal" : "+ Log Meal",
+                          _logged
+                              ? "${meal!.totalCalories.toInt()} kcal"
+                              : "+ Log Meal",
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(color: AppTheme.primary),
                         ),
@@ -96,7 +102,7 @@ class MealCard extends StatelessWidget {
                         const Spacer(),
 
                         Icon(
-                          logged
+                          _logged
                               ? Icons.chevron_right
                               : Icons.add_circle_outline,
                           color: AppTheme.primary,

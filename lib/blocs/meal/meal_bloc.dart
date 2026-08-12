@@ -20,6 +20,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
     on<SaveMeal>(_onSaveMeal);
     on<DeleteMeal>(_onDeleteMeal);
     on<GetHealthAnalysis>(_onGetHealthAnalysis);
+    on<UpdateMeal>(_onUpdateMeal);
   }
 
   Future<void> _onLoadMeals(LoadMeals event, Emitter<MealState> emit) async {
@@ -113,6 +114,23 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       final analysis = await _repository.generateHealthAnalysis(meals);
 
       emit(HealthAnalysisLoaded(analysis));
+    } catch (e) {
+      emit(MealError(e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateMeal(UpdateMeal event, Emitter<MealState> emit) async {
+    emit(const MealSaving());
+
+    try {
+      await _repository.updateMeal(event.meal);
+
+      final meals = await _repository.getMealsForDate(
+        event.meal.userId,
+        event.meal.loggedAt,
+      );
+
+      emit(MealsLoaded.fromMeals(meals));
     } catch (e) {
       emit(MealError(e.toString()));
     }
